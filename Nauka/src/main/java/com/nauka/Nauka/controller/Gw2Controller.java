@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,12 +19,11 @@ import java.util.stream.Collectors;
 public class Gw2Controller {
 
     @GetMapping("/AllCharacterInfo")
-    public Character getAllCharacterInfo() {
-        String url = "https://api.guildwars2.com/v2/characters/Pollocka?access_token=685E0020-4B78-F747-88A6-323B1A3661F1E15F3CD4-EDAE-4049-99D0-C86CC4EE9954";
+    public Character getAllCharacterInfo(@RequestParam(value = "characterName") String characterName,@RequestParam(value ="apiKey") String apiKey) {
+        String url = "https://api.guildwars2.com/v2/characters/"+characterName+"?access_token="+apiKey;
         RestTemplate restTemplate = new RestTemplate();
-        Character character = restTemplate.getForObject(url, Character.class);
 
-        return character;
+        return restTemplate.getForObject(url, Character.class);
 
     }
 
@@ -32,37 +32,39 @@ public class Gw2Controller {
     public List<String> getAllCharacters(@RequestParam(value = "apiKey") String apiKey) {
         String url = "https://api.guildwars2.com/v2/characters?access_token=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
-        List<String> result = restTemplate.getForObject(url, List.class);
-        return result;
+        return restTemplate.getForObject(url, List.class);
 
     }
 
     @CrossOrigin
     @GetMapping("/BasicCharacterInfo{character}{apiKey}")
-    public List<Character> getBasicCharacterInfo(@RequestParam(value = "character") String character, @RequestParam(value = "apiKey") String apiKey) {
-        String url = "https://api.guildwars2.com/v2/characters/" + character + "?access_token=" + apiKey;
+    public List<Character> getBasicCharacterInfo(@RequestParam(value = "characterName") String characterName, @RequestParam(value = "apiKey") String apiKey) {
+        String url = "https://api.guildwars2.com/v2/characters/" + characterName + "?access_token=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
         Character cha = restTemplate.getForObject(url, Character.class);
+        assert cha != null;
         Character c1 = new Character(cha.getName(), cha.getRace(), cha.getGender(), cha.getProfession(), cha.getLevel(), cha.getDeaths());
-        return Arrays.asList(c1);
+        return Collections.singletonList(c1);
     }
 
     @GetMapping("/craftingLevels")
-    public List<Crafting> getCraftingLevels() {
-        String url = "https://api.guildwars2.com/v2/characters/Pollocka?access_token=685E0020-4B78-F747-88A6-323B1A3661F1E15F3CD4-EDAE-4049-99D0-C86CC4EE9954";
+    public List<Crafting> getCraftingLevels(@RequestParam(value = "characterName") String characterName, @RequestParam(value = "apiKey") String apiKey) {
+        String url = "https://api.guildwars2.com/v2/characters/"+characterName+"?access_token="+apiKey;
         RestTemplate restTemplate = new RestTemplate();
         Character character = restTemplate.getForObject(url, Character.class);
+        assert character != null;
         return character.getCrafting();
 
 
     }
 
     @GetMapping("/AllEq")
-    public List<Item> getEquipment() throws NullPointerException{
+    public List<Item> getEquipment(@RequestParam(value = "characterName") String characterName, @RequestParam(value = "apiKey") String apiKey){
         List<Item> items = new ArrayList<>();
-        String url = "https://api.guildwars2.com/v2/characters/Pollocka?access_token=685E0020-4B78-F747-88A6-323B1A3661F1E15F3CD4-EDAE-4049-99D0-C86CC4EE9954";
+        String url = "https://api.guildwars2.com/v2/characters/"+characterName+"?access_token="+apiKey;
         RestTemplate restTemplate = new RestTemplate();
         Character eq = restTemplate.getForObject(url, Character.class);
+        assert eq != null;
         List<Equipment> eqs = eq.getEquipment();
 
         for(int i = 0 ; i<eqs.size(); i++){
@@ -79,8 +81,13 @@ public class Gw2Controller {
     {
         String url="https://api.guildwars2.com/v2/items/"+id;
         RestTemplate restTemplate = new RestTemplate();
-        Item it = restTemplate.getForObject(url,Item.class);
-        return it;
+        return restTemplate.getForObject(url,Item.class);
+    }
+    @GetMapping("/Mounts")
+    public List<String> getMounts(@RequestParam(value = "apiKey") String apiKey){
+        String url ="https://api.guildwars2.com/v2/account/mounts/types?access_token="+apiKey;
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(url,List.class);
     }
 
 }
