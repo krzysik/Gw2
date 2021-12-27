@@ -65,6 +65,7 @@ public class Gw2Controller {
         RestTemplate restTemplate = new RestTemplate();
         Character eq = restTemplate.getForObject(url, Character.class);
         assert eq != null;
+
         List<Equipment> eqs = eq.getEquipment();
 
         for(int i = 0 ; i<eqs.size(); i++){
